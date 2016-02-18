@@ -1,18 +1,19 @@
 package com.jugaads.hooknotify.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import com.jugaads.hooknotify.NotificationDetailActivity;
 import com.jugaads.hooknotify.R;
+import com.jugaads.hooknotify.adapter.ListRowNotifyAdapter;
 import com.jugaads.hooknotify.fragments.dummy.DummyContent.DummyItem;
+
+import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
@@ -26,7 +27,11 @@ public class NotificationFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+
+
+    private RecyclerView listRowRecyclerView;
+    private ListRowNotifyAdapter listRowAdapter;
+    private RecyclerView.LayoutManager listRowLayoutManager;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -59,74 +64,86 @@ public class NotificationFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notification, container, false);
 
-        String[] favouritefoods = {"@@@", "!!!!", "aaa", "kkk"};
 
-        //Build Adapter
-        ArrayAdapter<String> favefoodadapter = new ArrayAdapter<String>(
-                getActivity(), //some context for the activity
-                R.layout.notification_entry, //layout to be displayed(create)
-                favouritefoods); //strings to be diplayed
 
-        final ListView listView = (ListView) view.findViewById(R.id.listView);
-        listView.setAdapter(favefoodadapter);
+//        String[] favouritefoods = {"@@@", "!!!!", "aaa", "kkk"};
+//        String[] favouritefoods1 = {"@@@@@@@@@@@@@", "!!!!!!!!!!!!", "aaaaaaaaa", "kkkkkkkkkkkk"};
+//
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//        //Build Adapter
+//        NotifyListRow notifyAdapter = new NotifyListRow(getActivity(),favouritefoods,favouritefoods1);
+//
+//        final ListView listView = (ListView) view.findViewById(R.id.listView);
+//        listView.setAdapter(notifyAdapter);
+//
+//
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//
+//                Intent myIntent = new Intent(getActivity(), NotificationDetailActivity.class);
+//                myIntent.putExtra("row_value", listView.getItemAtPosition(i).toString());
+//                getActivity().startActivity(myIntent);
+//            }
+//        });
+
+        listRowRecyclerView = (RecyclerView) view.findViewById(R.id.listView);
+        listRowRecyclerView.setHasFixedSize(true);
+        listRowLayoutManager = new LinearLayoutManager(getContext());
+        listRowRecyclerView.setLayoutManager(listRowLayoutManager);
+        listRowAdapter = new ListRowNotifyAdapter(getList1(),getList2());
+        listRowRecyclerView.setAdapter(listRowAdapter);
+
+        ItemTouchHelper swipeToDismissTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                // callback for drag-n-drop, false to skip this feature
+                return false;
+            }
 
-                Intent myIntent = new Intent(getActivity(), NotificationDetailActivity.class);
-                myIntent.putExtra("row_value",listView.getItemAtPosition(i).toString());
-                getActivity().startActivity(myIntent);
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                // callback for swipe to dismiss, removing item from data and adapter
+
+                listRowAdapter.deleteItem(viewHolder.getAdapterPosition());
+                listRowAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
             }
         });
+        swipeToDismissTouchHelper.attachToRecyclerView(listRowRecyclerView);
 
-//        // Set the adapter
-//        if (view instanceof RecyclerView) {
-//            Context context = view.getContext();
-//            RecyclerView recyclerView = (RecyclerView) view;
-//            if (mColumnCount <= 1) {
-//                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-//            } else {
-//                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+//        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//
+//                Intent myIntent = new Intent(getActivity(), NotificationDetailActivity.class);
+//                myIntent.putExtra("row_value", listView.getItemAtPosition(i).toString());
+//                getActivity().startActivity(myIntent);
 //            }
-//            recyclerView.setAdapter(new NotificationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
-//        }
+//        });
+
+
         return view;
     }
 
 
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnListFragmentInteractionListener) {
-//            mListener = (OnListFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnListFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+
+    private ArrayList<String> getList1() {
+        ArrayList results = new ArrayList<String>();
+        for (int index = 0; index < 20; index++) {
+            results.add(index, "Some Primary Sender name "+index);
+        }
+        return results;
     }
 
+    private ArrayList<String> getList2() {
+        ArrayList results = new ArrayList<String>();
+        for (int index = 0; index < 20; index++) {
+            results.add(index, "Some Primary Sent Text ##############"+index+"@@@@"+index);
+        }
+        return results;
+    }
 
 
 }
