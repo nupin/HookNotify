@@ -9,15 +9,18 @@ import android.widget.TextView;
 import com.jugaads.hooknotify.R;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Created by npillai on 17-02-2016.
  */
 public class ListRowNotifyAdapter extends RecyclerView.Adapter <ListRowNotifyAdapter.ListRowNotifyHolder>
 {
-    private ArrayList<String> senderNameList;
-    private ArrayList<String> sentTextList;
+    private Stack<String> senderNameList = new Stack<String>();
+    private Stack<String> sentTextList = new Stack<String>();
     private static NotifyItemClickListener clickListener ;
+
+
 
     public static class ListRowNotifyHolder extends RecyclerView.ViewHolder implements View.OnClickListener
     {
@@ -41,10 +44,10 @@ public class ListRowNotifyAdapter extends RecyclerView.Adapter <ListRowNotifyAda
         this.clickListener = clickListener;
     }
 
-    public ListRowNotifyAdapter(ArrayList<String> senderNameList ,ArrayList<String> sentTextList )
+    public ListRowNotifyAdapter()
     {
-        this.senderNameList = senderNameList ;
-        this.sentTextList = sentTextList ;
+//        this.senderNameList = senderNameList ;
+//        this.sentTextList = sentTextList ;
     }
 
     @Override
@@ -59,14 +62,18 @@ public class ListRowNotifyAdapter extends RecyclerView.Adapter <ListRowNotifyAda
     @Override
     public void onBindViewHolder(ListRowNotifyHolder holder,int position){
         holder.senderName.setText(senderNameList.get(position));
-        holder.sentText.setText(sentTextList.get(position));
+//        holder.sentText.setText(sentTextList.get(position));
     }
 
 
     public void deleteItem(int index) {
         senderNameList.remove(index);
-        sentTextList.remove(index);
+//        sentTextList.remove(index);
         notifyItemRemoved(index);
+    }
+
+    public void insertItem(String message) {
+        senderNameList.push(message);
     }
 
     @Override

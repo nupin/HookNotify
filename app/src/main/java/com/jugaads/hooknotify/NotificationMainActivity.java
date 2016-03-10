@@ -21,6 +21,12 @@ import com.jugaads.hooknotify.fragments.NotificationPlainFragment;
 public class NotificationMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static NotificationMainActivity inst;
+
+    public static NotificationMainActivity instance() {
+        return inst;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +51,6 @@ public class NotificationMainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-//        FragmentManager fm = getSupportFragmentManager();
-//        fm.beginTransaction().replace(R.id.notify_content_frame, new NotificationPlainFragment()).commit();
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.notify_content_frame, new NotificationFragment()).commit();
